@@ -1,9 +1,26 @@
 'use strict';
 
 window.onload = function () {
+    var audioContext = new AudioContext();
+    var analyser = null;
+    var bufLen = 4096;
+    var buffer = new Float32Array(bufLen);
+
+    var noteEl = document.querySelector('#note');
+    var lastNoteEl = document.querySelector('#last-note');
+    var playedNoteEl = document.querySelector('#played-note');
+    var responseTimeEl = document.querySelector('#response-time');
+    var correctScoreEl = document.querySelector('#correct-score');
+    var wrongScoreEl = document.querySelector('#wrong-score');
+
     var noteStrings = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
 
-    var audioContext = new AudioContext();
+    var noteCheckInterval = 50;
+    var nextNoteString = generateNote();
+    var startTime = Date.now();
+    var newNoteTimeout = null;
+    var correctScore = 0;
+    var wrongScore = 0;
 
     navigator
         .mediaDevices.getUserMedia({audio: true})
@@ -12,42 +29,88 @@ window.onload = function () {
             console.error(err);
         });
 
+    function checkNote() {
+        var currentNote = getNote();
+        var currentNoteString = noteStrings[currentNote % noteStrings.length];
+        if (!newNoteTimeout) {
+            updateResponseTime();
+        }
+        if (currentNote && !newNoteTimeout) {
+            noteEl.classList.add('pulse');
+            if (currentNoteString === nextNoteString) {
+                noteEl.classList.add('green');
+                correctScore++;
+            } else {
+                noteEl.classList.add('red');
+                wrongScore++;
+            }
+            updateScore();
+            updateNoteInfo(currentNoteString, nextNoteString);
+            newNoteTimeout = setTimeout(newNote, 1000);
+        }
+    }
+
+    function updateNoteInfo(lastNote, playedNote) {
+        lastNoteEl.innerHTML = lastNote;
+        playedNoteEl.innerHTML = playedNote;
+    }
+
+    function updateScore() {
+        correctScoreEl.innerHTML = correctScore;
+        wrongScoreEl.innerHTML = wrongScore;
+    }
+
+    function updateResponseTime() {
+        responseTimeEl.innerHTML = deltaSeconds(startTime).toFixed(1) + 's';
+    }
+
+    function deltaSeconds(starTime) {
+        return (Date.now() - starTime) / 1000;
+    }
+
+    function newNote() {
+        removePulseClasses();
+        nextNoteString = generateNote();
+        startTime = Date.now();
+        newNoteTimeout = null;
+    }
+
+    function removePulseClasses() {
+        noteEl.classList.remove('pulse');
+        noteEl.classList.remove('red');
+        noteEl.classList.remove('green');
+    }
+
+    // TODO: wtf
+    // function removePulseClasses() {
+    //     ['pulse-green', 'pulse-red'].forEach((class) => noteEl.classList.remove(class));
+    //     // ['pulse-green', 'pulse-red'].forEach(function(class) {
+    //     //     noteEl.classList.remove(class);
+    //     // });
+    // }
+
     function mediaStreamResolved(mediaStream) {
         var mediaStreamSource = audioContext.createMediaStreamSource(mediaStream);
-        var analyser = audioContext.createAnalyser();
-        analyser.fftSize = 2048;
+        analyser = audioContext.createAnalyser();
+        analyser.fftSize = 4096;
         mediaStreamSource.connect(analyser);
-        var bufLen = 2048;
-        var buffer = new Float32Array(bufLen);
 
-        setInterval(checkNote, 1000);
+        setInterval(checkNote, noteCheckInterval);
+    }
 
-        var nextNote = generateNote();
-        function checkNote() {
-            var currentNote = getNote();
-            var noteString = noteStrings[currentNote % noteStrings.length];
-            // if (currentNote) console.log(currentNote, noteString, Math.floor(currentNote / 12))
-            if (currentNote) {
-                if (noteString == nextNote) {
-                    console.log('Yayy, you played ' + noteString + ' correctly.');
-                } else {
-                    console.log('Whoopsie, you played ' + noteString + ' instead of ' + nextNote);
-                }
-                nextNote = generateNote();
-            }
+    function getNote() {
+        if (!analyser) {
+            return null;
         }
+        analyser.getFloatTimeDomainData(buffer);
+        var autoCorrelation = autoCorrelate(buffer, audioContext.sampleRate);
+        return noteFromPitch(autoCorrelation);
+    }
 
-        function getNote() {
-            analyser.getFloatTimeDomainData(buffer);
-            var autoCorrelation = autoCorrelate(buffer, audioContext.sampleRate);
-            return noteFromPitch(autoCorrelation);
-        }
-
-        function generateNote() {
-            var note = noteStrings[random(noteStrings.length - 1)];
-            console.log('Next note: ' + note);
-            return note;
-        }
+    function generateNote() {
+        var note = noteStrings[random(noteStrings.length - 1)];
+        noteEl.innerHTML = note;
+        return note;
     }
 
     function noteFromPitch( frequency ) {

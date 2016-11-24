@@ -7,10 +7,26 @@
             content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
     >
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="style.css">
     <title>Note training</title>
 </head>
 <body>
-
+    <section class="main column">
+        <div class="row score">
+            <p class="red text text-normal" id="wrong-score">0</p>
+            <p class="green text text-normal" id="correct-score">0</p>
+        </div>
+        <div class="note text">
+            <p id="note"></p>
+        </div>
+        <div class="row info">
+            <p class="response-time text text-small" id="response-time"></p>
+            <p class="last-note text text-small">
+                Last note: <span id="last-note">N/A</span><br>
+                Played note: <span id="played-note">N/A</span>
+            </p>
+        </div>
+    </section>
 <script type="text/javascript" src="app.js"></script>
 </body>
 </html>

@@ -1,0 +1,83 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+html, body {
+    height: 100%;
+}
+body {
+    background-color: rgba(0, 0, 0, 0.7);
+}
+.main {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.note {
+    flex: none;
+    width: 60vh;
+    height: 60vh;
+    border-radius: 3vh;
+    line-height: 60vh;
+    font-size: 40vh;
+}
+.text {
+    background-color: #373737;
+    color: rgba(255, 255, 255, 0.7);
+    text-align: center;
+    vertical-align: middle;
+    font-family: Consolas, monospace;
+}
+.text-normal {
+    padding: 0.2em 1em;
+    line-height: 10vh;
+    font-size: 5vh;
+}
+.text-small {
+    padding: 0.2em 1em;
+    line-height: 6vh;
+    font-size: 3vh;
+}
+.info p {
+    border-radius: 0 0 3vh 3vh;
+    margin: 0 0.25em;
+    padding: 0 1.5em;
+}
+.response-time {
+    line-height: 10vh;
+}
+.score p {
+    border-radius: 3vh 3vh 0 0;
+    margin: 0 0.25em;
+    padding: 0 1.5em;
+}
+.row {
+    display: flex;
+    flex-direction: row;
+}
+.column {
+    display: flex;
+    flex-direction: column;
+}
+.red {
+    color: #fa3f3f;
+}
+.green {
+    color: #3fa03f;
+}
+.pulse {
+    animation: pulse 1s ease-out infinite;
+}
+
+@keyframes pulse {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+    100% {
+        opacity: 1;
+    }
+}
