@@ -45,7 +45,7 @@ window.onload = function () {
                 wrongScore++;
             }
             updateScore();
-            updateNoteInfo(currentNoteString, nextNoteString);
+            updateNoteInfo(nextNoteString, currentNoteString);
             newNoteTimeout = setTimeout(newNote, 1000);
         }
     }
